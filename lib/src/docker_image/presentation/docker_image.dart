@@ -1,6 +1,7 @@
 import 'package:dokdok/src/docker_image/domain/entities/docker_image_model.dart';
 import 'package:dokdok/src/docker_image/domain/usecases/docker_image_usecase.dart';
 import 'package:dokdok/utils/table_builder.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart' hide Colors;
 import 'package:flutter/material.dart' hide ButtonStyle;
 
@@ -14,6 +15,7 @@ class DockerImageApp extends StatefulWidget {
 
 class _DockerImageAppState extends State<DockerImageApp> {
   int _selectedOption = 0;
+  String? _selectedFolder;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,15 @@ class _DockerImageAppState extends State<DockerImageApp> {
               'created': img.created,
             })
         .toList();
-
+    void _pickFolder() async {
+      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+      if (selectedDirectory != null) {
+        // Use the selected folder path
+        setState(() {
+          _selectedFolder = selectedDirectory;
+        });
+      }
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Docker Images Page'),
@@ -49,14 +59,16 @@ class _DockerImageAppState extends State<DockerImageApp> {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: _pickFolder,
                       label: const Text('Add Docker Project folder'),
                       icon: const Icon(Icons.add),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Manage your Project folder here to be generated into docker file. You can add, remove, and view details of your Docker images.',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    Text(
+                      _selectedFolder == null
+                          ? 'Manage your Project folder here to be generated into docker file. You can add, remove, and view details of your Docker images.'
+                          : 'Selected folder: $_selectedFolder',
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 32),
