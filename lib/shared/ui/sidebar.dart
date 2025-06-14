@@ -1,14 +1,16 @@
+import 'package:dokdok/shared/constant/nav_items.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-
 
 class Sidebar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemSelected;
+  final List<NavItem> items; // received from parent
 
   const Sidebar({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
+    required this.items,
   });
 
   @override
@@ -43,43 +45,14 @@ class Sidebar extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // Navigation items
-          _SidebarItem(
-            icon: FluentIcons.table,
-            label: 'Dashboard',
-            selected: selectedIndex == 0,
-            onTap: () => onItemSelected(0),
-          ),
-          _SidebarItem(
-            icon: FluentIcons.project_collection,
-            label: 'Projects',
-            selected: selectedIndex == 1,
-            onTap: () => onItemSelected(1),
-          ),
-          _SidebarItem(
-            icon: FluentIcons.calendar,
-            label: 'Tasks',
-            selected: selectedIndex == 2,
-            onTap: () => onItemSelected(2),
-          ),
-          _SidebarItem(
-            icon: FluentIcons.people,
-            label: 'Team',
-            selected: selectedIndex == 3,
-            onTap: () => onItemSelected(3),
-          ),
-          _SidebarItem(
-            icon: FluentIcons.analytics_view,
-            label: 'Analytics',
-            selected: selectedIndex == 4,
-            onTap: () => onItemSelected(4),
-          ),
-          _SidebarItem(
-            icon: FluentIcons.settings,
-            label: 'Settings',
-            selected: selectedIndex == 5,
-            onTap: () => onItemSelected(5),
-          ),
+          // Dynamically generate navigation items
+          for (int i = 0; i < items.length; i++)
+            _SidebarItem(
+              icon: items[i].icon,
+              label: items[i].label,
+              selected: selectedIndex == i,
+              onTap: () => onItemSelected(i),
+            ),
           const Spacer(),
           // Help at the bottom
           Padding(
@@ -126,7 +99,7 @@ class _SidebarItem extends StatelessWidget {
         child: Container(
           height: 44,
           decoration: BoxDecoration(
-             color: selected ? const Color(0xFF8F5FE8).withOpacity(0.3) : Colors.transparent,
+            color: selected ? const Color(0xFF8F5FE8).withOpacity(0.3) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
