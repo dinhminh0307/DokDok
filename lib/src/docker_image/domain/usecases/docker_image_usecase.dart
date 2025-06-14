@@ -5,7 +5,7 @@ class DockerImageUsecase {
   final DockerImageInterface _repository;
   DockerImageUsecase(this._repository);
 
-  List<DockerImageModel> getDockerImages() {
-    return _repository.getDockerImages();
+  Future<List<DockerImageModel>> getDockerImages() async {
+    return await _repository.getDockerImages();
   }
 }
