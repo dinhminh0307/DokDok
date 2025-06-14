@@ -115,7 +115,54 @@ class _DockerImageAppState extends State<DockerImageApp> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 32),
-                        // ...radio buttons and other widgets...
+                         Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Radio<int>(
+                          value: 0,
+                          groupValue: _selectedOption,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedOption = value!;
+                            });
+                          },
+                        ),
+                        const Text('Create with template'),
+                        const SizedBox(width: 16),
+                        Radio<int>(
+                          value: 1,
+                          groupValue: _selectedOption,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedOption = value!;
+                            });
+                          },
+                        ),
+                        const Text('Create with AI'),
+                        const SizedBox(width: 16),
+                        Radio<int>(
+                          value: 2,
+                          groupValue: _selectedOption,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedOption = value!;
+                            });
+                          },
+                        ),
+                        const Text('Create with Drag and Drop'),
+                        const SizedBox(width: 16),
+                        Radio<int>(
+                          value: 3,
+                          groupValue: _selectedOption,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedOption = value!;
+                            });
+                          },
+                        ),
+                        const Text('View Details'),
+                      ],
+                    ),
                       ],
                     );
                   }
