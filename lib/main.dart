@@ -1,3 +1,4 @@
+import 'package:dokdok/src/docker_image/presentation/docker_image.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'shared/ui/navbar.dart';
 import 'shared/ui/sidebar.dart';
@@ -48,7 +49,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           Expanded(
             child: Center(
-              child: Text('Main Content Here'),
+              child: DockerImageApp(),
             ),
           ),
         ],
