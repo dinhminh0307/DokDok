@@ -3,10 +3,18 @@ import 'package:dokdok/src/docker_image/domain/repos/docker_image_repos.dart';
 import 'package:dokdok/src/docker_image/domain/usecases/docker_image_usecase.dart';
 import 'package:dokdok/src/docker_image/presentation/docker_image.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:get_it/get_it.dart';
 import 'shared/ui/navbar.dart';
 import 'shared/ui/sidebar.dart';
 void main() {
+  registerDependencies();
   runApp(const MyApp());
+}
+
+void registerDependencies() {
+  // using dependencies injection with GetIt
+  GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
+  GetIt.I.registerFactory(() => DockerImageUsecase(GetIt.I<DockerImageInterface>()));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,6 +39,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int selectedIndex = 0;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +61,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           Expanded(
             child: Center(
-              child: DockerImageApp(DockerImageUsecase(DockerImageInterfaceImpl())),
+              child: DockerImageApp(GetIt.I<DockerImageUsecase>()),
             ),
           ),
         ],
