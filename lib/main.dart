@@ -1,3 +1,6 @@
+import 'package:dokdok/src/docker_image/data/repos/docker_image_repos_impl.dart';
+import 'package:dokdok/src/docker_image/domain/repos/docker_image_repos.dart';
+import 'package:dokdok/src/docker_image/domain/usecases/docker_image_usecase.dart';
 import 'package:dokdok/src/docker_image/presentation/docker_image.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'shared/ui/navbar.dart';
@@ -49,7 +52,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           Expanded(
             child: Center(
-              child: DockerImageApp(),
+              child: DockerImageApp(DockerImageUsecase(DockerImageInterfaceImpl())),
             ),
           ),
         ],

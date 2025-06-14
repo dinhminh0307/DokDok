@@ -14,7 +14,7 @@ class TableBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Table(
       border: TableBorder.all(color: Colors.grey, width: 1),
-      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      defaultVerticalAlignment: TableCellVerticalAlignment.top,
       columnWidths: const {
         0: FixedColumnWidth(120),
         1: FixedColumnWidth(100),
