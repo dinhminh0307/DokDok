@@ -1,5 +1,6 @@
 import 'package:dokdok/services/db/db_manager.dart';
 import 'package:dokdok/services/db/languages.dart';
+import 'package:dokdok/services/db/templates.dart';
 import 'package:dokdok/services/process_run/docker_process.dart';
 import 'package:dokdok/services/process_run/process.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
@@ -9,6 +10,7 @@ import 'package:dokdok/src/docker_image/data/repos/docker_image_repos_impl.dart'
 import 'package:dokdok/src/docker_image/domain/repos/docker_image_repos.dart';
 import 'package:dokdok/src/docker_image/domain/usecases/docker_image_usecase.dart';
 import 'package:dokdok/src/docker_image/presentation/docker_image.dart';
+import 'package:dokdok/src/docker_template/data/templates.dart';
 import 'package:dokdok/src/docker_template/presentation/docker_template.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:get_it/get_it.dart';
@@ -57,6 +59,8 @@ void registerDependencies() {
   GetIt.I.registerSingleton<DockerProcess>(DockerProcess());
   GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess());
   GetIt.I.registerSingleton<DbManager<Languages>>(LanguagesDbManager());
+  GetIt.I.registerSingleton<DbManager<Templates>>(TemplatesDbManager());
+  GetIt.I.registerSingleton<TemplatesDbManager>(TemplatesDbManager());
 }
 
 // Define your routes

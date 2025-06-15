@@ -1,3 +1,4 @@
+import 'package:dokdok/src/docker_template/data/languages.dart';
 import 'package:dokdok/src/docker_template/domain/docker_template_usecase.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide ButtonStyle, showDialog;
@@ -15,24 +16,42 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
   final TextEditingController _codeController = TextEditingController();
   String _selectedLanguage = '';
 
-  final List<String> _languages = [];
+  final List<Languages> _languages = [];
+  String _textEditorValue = '';
 
-  void setDefaultLanguage() async {
+  Future<void> setDefaultLanguage() async {
      final lang = await widget._dockerTemplateUseCase.getProgrammingLanguages(widget.folder ?? '');
      setState(() {
       _selectedLanguage = lang;
     });
   }
 
-  void getAvailableLanguages() async {
+  Future<void> getAvailableLanguages() async {
     final availableLanguages = await widget._dockerTemplateUseCase.getAvailableLanguages();
     setState(() {
       _languages.clear();
-      _languages.addAll(availableLanguages.split(', '));
+      _languages.addAll(availableLanguages);
       if (_languages.isNotEmpty && _selectedLanguage.isEmpty) {
-        _selectedLanguage = _languages.first;
+        _selectedLanguage = _languages.first.languageName ?? '';
       }
     });
+
+  }
+
+  Future<void> setDefaultTextEditorValue() async {
+    if (_languages.isNotEmpty) {
+      for(var lang in _languages) {
+        if (lang.languageName == _selectedLanguage) {
+          print('Selected language: ${lang.languageName}');
+          final template = await widget._dockerTemplateUseCase.getDockerfileTemplate(lang.languageId ?? 0);
+          setState(() {
+            _textEditorValue = template;
+            _codeController.text = template;
+          });
+          break;
+        }
+      }
+    }
   }
 
   @override
@@ -42,11 +61,16 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    getAvailableLanguages();
-    setDefaultLanguage(); 
-  }
+void initState() {
+  super.initState();
+  _initAsync();
+}
+
+void _initAsync() async {
+  await getAvailableLanguages();
+  await setDefaultLanguage();
+  await setDefaultTextEditorValue();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -75,11 +99,13 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
               ? const Text('No languages available')
               :
               ComboBox<String>(
-                value: _languages.contains(_selectedLanguage) ? _selectedLanguage : _languages.first,
+                value: _languages.map((lang) => lang.languageName ?? '').contains(_selectedLanguage)
+                  ? _selectedLanguage
+                  : (_languages.isNotEmpty ? _languages.first.languageName ?? '' : ''),
                 items: _languages
                     .map((lang) => ComboBoxItem<String>(
-                          value: lang,
-                          child: Text(lang),
+                          value: lang.languageName ?? '',
+                          child: Text(lang.languageName ?? ''),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -93,18 +119,20 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
             ],
           ),
           const SizedBox(height: 16),
-          // Code editor (multiline text field)
           Expanded(
             child: TextBox(
               controller: _codeController,
               minLines: null,
               maxLines: null,
               expands: true,
-              placeholder: 'Enter your code here...',
+              placeholder: _textEditorValue.isEmpty ? 'Enter your code here...' : null,
               style: const TextStyle(
                 fontFamily: 'Consolas',
                 fontSize: 15,
               ),
+              onChanged: (value) {
+                _textEditorValue = value;
+              },
             ),
           ),
           const SizedBox(height: 24),
