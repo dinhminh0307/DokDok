@@ -1,7 +1,10 @@
+import 'package:dokdok/services/db/db_manager.dart';
+import 'package:dokdok/services/db/languages.dart';
 import 'package:dokdok/services/process_run/docker_process.dart';
 import 'package:dokdok/services/process_run/process.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/shared/constant/nav_items.dart';
+import 'package:dokdok/src/docker_template/data/languages.dart';
 import 'package:dokdok/src/docker_image/data/repos/docker_image_repos_impl.dart';
 import 'package:dokdok/src/docker_image/domain/repos/docker_image_repos.dart';
 import 'package:dokdok/src/docker_image/domain/usecases/docker_image_usecase.dart';
@@ -10,14 +13,21 @@ import 'package:dokdok/src/docker_template/presentation/docker_template.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:get_it/get_it.dart';
 import 'package:process_run/cmd_run.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'shared/ui/navbar.dart';
 import 'shared/ui/sidebar.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
   registerDependencies();
   checkInstalled();
   runApp(const MyApp());
+}
+
+void sqfliteFfiInit() {
 }
 
 Future<void> checkInstalled() async {
@@ -46,6 +56,7 @@ void registerDependencies() {
   GetIt.I.registerFactory(() => DockerImageUsecase(GetIt.I<DockerImageInterface>()));
   GetIt.I.registerSingleton<DockerProcess>(DockerProcess());
   GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess());
+  GetIt.I.registerSingleton<DbManager<Languages>>(LanguagesDbManager());
 }
 
 // Define your routes

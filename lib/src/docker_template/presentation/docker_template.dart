@@ -15,20 +15,23 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
   final TextEditingController _codeController = TextEditingController();
   String _selectedLanguage = '';
 
-  final List<String> _languages = [
-    'Dockerfile',
-    'YAML',
-    'Shell',
-    'Python',
-    'JavaScript',
-    'Go',
-    'C#'
-  ];
+  final List<String> _languages = [];
 
   void setDefaultLanguage() async {
      final lang = await widget._dockerTemplateUseCase.getProgrammingLanguages(widget.folder ?? '');
      setState(() {
       _selectedLanguage = lang;
+    });
+  }
+
+  void getAvailableLanguages() async {
+    final availableLanguages = await widget._dockerTemplateUseCase.getAvailableLanguages();
+    setState(() {
+      _languages.clear();
+      _languages.addAll(availableLanguages.split(', '));
+      if (_languages.isNotEmpty && _selectedLanguage.isEmpty) {
+        _selectedLanguage = _languages.first;
+      }
     });
   }
 
@@ -41,6 +44,7 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
   @override
   void initState() {
     super.initState();
+    getAvailableLanguages();
     setDefaultLanguage(); 
   }
 
@@ -67,6 +71,9 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 12),
+              _languages.isEmpty
+              ? const Text('No languages available')
+              :
               ComboBox<String>(
                 value: _languages.contains(_selectedLanguage) ? _selectedLanguage : _languages.first,
                 items: _languages

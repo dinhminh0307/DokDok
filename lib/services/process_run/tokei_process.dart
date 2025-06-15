@@ -50,7 +50,7 @@ class TokeiProcess implements Process {
 
   Future<String?> getMainLanguage(String folderPath) async {
     var cmd = ProcessCmd('tokei', [folderPath, '--output', 'json']);
-    var res = await runCmd(cmd, stdout: stdout);
+    var res = await runCmd(cmd);
     if (res.exitCode != 0) {
       print('Error running Tokei: ${res.stderr}');
       return null;
