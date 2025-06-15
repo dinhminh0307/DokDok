@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dokdok/services/process_run/process.dart';
 import 'dart:io';
 import 'package:process_run/cmd_run.dart';
@@ -43,6 +45,34 @@ class TokeiProcess implements Process {
     } else {
       print('Failed to start Tokei installation: ${res.stderr}');
       return false;
+    }
+  }
+
+  Future<String?> getMainLanguage(String folderPath) async {
+    var cmd = ProcessCmd('tokei', [folderPath, '--output', 'json']);
+    var res = await runCmd(cmd, stdout: stdout);
+    if (res.exitCode != 0) {
+      print('Error running Tokei: ${res.stderr}');
+      return null;
+    }
+    try {
+      final jsonResult = json.decode(res.stdout.toString()) as Map<String, dynamic>;
+      String? mainLang;
+      int maxCode = 0;
+      for (final entry in jsonResult.entries) {
+        final lang = entry.key;
+        if (lang == 'Total' || lang == 'JSON') continue;
+        final stats = entry.value as Map<String, dynamic>;
+        final code = stats['code'] as int? ?? 0;
+        if (code > maxCode) {
+          maxCode = code;
+          mainLang = lang;
+        }
+      }
+      return mainLang;
+    } catch (e) {
+      print('Failed to parse Tokei output: $e');
+      return null;
     }
   }
 }

@@ -1,9 +1,11 @@
+import 'package:dokdok/src/docker_template/domain/docker_template_usecase.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide ButtonStyle, showDialog;
 
 class DockerTemplateApp extends StatefulWidget {
   final String? folder;
-  const DockerTemplateApp({super.key, this.folder});
+  final DockerTemplateUseCase _dockerTemplateUseCase = DockerTemplateUseCase();
+  DockerTemplateApp({super.key, this.folder});
 
   @override
   State<DockerTemplateApp> createState() => _DockerTemplateAppState();
@@ -11,7 +13,7 @@ class DockerTemplateApp extends StatefulWidget {
 
 class _DockerTemplateAppState extends State<DockerTemplateApp> {
   final TextEditingController _codeController = TextEditingController();
-  String _selectedLanguage = 'Dockerfile';
+  String _selectedLanguage = '';
 
   final List<String> _languages = [
     'Dockerfile',
@@ -19,12 +21,27 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
     'Shell',
     'Python',
     'JavaScript',
+    'Go',
+    'C#'
   ];
+
+  void setDefaultLanguage() async {
+     final lang = await widget._dockerTemplateUseCase.getProgrammingLanguages(widget.folder ?? '');
+     setState(() {
+      _selectedLanguage = lang;
+    });
+  }
 
   @override
   void dispose() {
     _codeController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setDefaultLanguage(); 
   }
 
   @override
@@ -51,7 +68,7 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
               ),
               const SizedBox(width: 12),
               ComboBox<String>(
-                value: _selectedLanguage,
+                value: _languages.contains(_selectedLanguage) ? _selectedLanguage : _languages.first,
                 items: _languages
                     .map((lang) => ComboBoxItem<String>(
                           value: lang,
