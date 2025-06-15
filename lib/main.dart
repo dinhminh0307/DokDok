@@ -34,7 +34,10 @@ final GoRouter _router = GoRouter(
         // Add more routes here, e.g.:
         GoRoute(
           path: '/templates',
-          builder: (context, state) => DockerTemplateApp(),
+          builder: (context, state) {
+          final folder = state.uri.queryParameters['folder'];
+          return DockerTemplateApp(folder: folder);
+        },
         ),
       ],
     ),
@@ -68,7 +71,6 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<String> routePaths = [
     '/docker-images',
-    '/templates',
     // '/tasks',
   ];
 

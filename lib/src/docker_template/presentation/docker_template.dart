@@ -1,7 +1,8 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
 class DockerTemplateApp extends StatelessWidget {
-  const DockerTemplateApp({super.key});
+  final String? folder;
+  const DockerTemplateApp({super.key, this.folder});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,14 @@ class DockerTemplateApp extends StatelessWidget {
             'This page will display Docker templates and allow users to manage them.',
             style: FluentTheme.of(context).typography.body,
           ),
-          // Add more UI elements here as needed
+
+          if (folder != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              'Selected folder: $folder',
+              style: FluentTheme.of(context).typography.bodyStrong,
+            ),
+          ],
         ],
       ),
     );

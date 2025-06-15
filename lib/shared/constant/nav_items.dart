@@ -9,5 +9,4 @@ class NavItem {
 
 final List<NavItem> navItems = [
   NavItem('Docker Images', '/docker-images', FluentIcons.database),
-  NavItem('Templates', '/templates', FluentIcons.page),
 ];

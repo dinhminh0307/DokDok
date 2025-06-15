@@ -4,6 +4,7 @@ import 'package:dokdok/utils/table_builder.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart' hide Colors;
 import 'package:flutter/material.dart' hide ButtonStyle, Scrollbar;
+import 'package:go_router/go_router.dart';
 
 class DockerImageApp extends StatefulWidget {
   final DockerImageUsecase _dockerImageUsecase;
@@ -182,8 +183,7 @@ class _DockerImageAppState extends State<DockerImageApp> {
                   elevation: ButtonState.all(4.0),
                 ),
                 onPressed: () {
-                  // Handle button press
-                  print('Create Docker Image button pressed');
+                 GoRouter.of(context).go('/templates?folder=$_selectedFolder');
                 },
               ),
             ),
