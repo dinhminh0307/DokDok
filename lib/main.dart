@@ -1,3 +1,6 @@
+import 'package:dokdok/services/process_run/docker_process.dart';
+import 'package:dokdok/services/process_run/process.dart';
+import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/shared/constant/nav_items.dart';
 import 'package:dokdok/src/docker_image/data/repos/docker_image_repos_impl.dart';
 import 'package:dokdok/src/docker_image/domain/repos/docker_image_repos.dart';
@@ -6,18 +9,43 @@ import 'package:dokdok/src/docker_image/presentation/docker_image.dart';
 import 'package:dokdok/src/docker_template/presentation/docker_template.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:get_it/get_it.dart';
+import 'package:process_run/cmd_run.dart';
 import 'shared/ui/navbar.dart';
 import 'shared/ui/sidebar.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
   registerDependencies();
+  checkInstalled();
   runApp(const MyApp());
 }
+
+Future<void> checkInstalled() async {
+  var dockerProcess = GetIt.I<DockerProcess>();
+  var dockerRes = await dockerProcess.isInstalled();
+  if(!dockerRes) {
+    var res = await dockerProcess.installDocker();
+    if(!res) {
+      throw Exception('Error while installing Docker. Please check your installation method.');
+    }
+  }
+  var tokeiProcess = GetIt.I<TokeiProcess>();
+  var tokeiRes = await tokeiProcess.isInstalled();
+  if(!tokeiRes) {
+    var res = await tokeiProcess.installTokei();
+    if(!res) {
+      throw Exception('Error while installing Tokei. Please check your installation method.');
+    }
+  }
+  print('Docker and Tokei are installed and available in PATH');
+}
+
 
 void registerDependencies() {
   GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
   GetIt.I.registerFactory(() => DockerImageUsecase(GetIt.I<DockerImageInterface>()));
+  GetIt.I.registerSingleton<DockerProcess>(DockerProcess());
+  GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess());
 }
 
 // Define your routes
