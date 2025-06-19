@@ -1,9 +1,10 @@
+import 'package:dokdok/shared/ui/toast_builder.dart';
 import 'package:dokdok/src/docker_image/domain/entities/docker_image_model.dart';
 import 'package:dokdok/src/docker_image/domain/usecases/docker_image_usecase.dart';
 import 'package:dokdok/utils/table_builder.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart' hide Colors;
-import 'package:flutter/material.dart' hide ButtonStyle, Scrollbar;
+import 'package:flutter/material.dart' hide ButtonStyle, Scrollbar, IconButton;
 import 'package:go_router/go_router.dart';
 
 class DockerImageApp extends StatefulWidget {
@@ -183,6 +184,10 @@ class _DockerImageAppState extends State<DockerImageApp> {
                   elevation: ButtonState.all(4.0),
                 ),
                 onPressed: () {
+                  if(_selectedFolder == null) {
+                   ToastBuilder.showError(context, 'Please select a folder first');
+                    return;
+                  }
                  GoRouter.of(context).go('/templates?folder=$_selectedFolder');
                 },
               ),

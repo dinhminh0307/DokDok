@@ -1,8 +1,9 @@
 import 'package:dokdok/services/db/db_manager.dart';
 import 'package:dokdok/services/db/languages.dart';
 import 'package:dokdok/services/db/templates.dart';
+import 'package:dokdok/services/log/console.dart';
+import 'package:dokdok/services/log/interface.dart';
 import 'package:dokdok/services/process_run/docker_process.dart';
-import 'package:dokdok/services/process_run/process.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/shared/constant/nav_items.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';
@@ -36,7 +37,7 @@ Future<void> checkInstalled() async {
   var dockerProcess = GetIt.I<DockerProcess>();
   var dockerRes = await dockerProcess.isInstalled();
   if(!dockerRes) {
-    var res = await dockerProcess.installDocker();
+    var res = await dockerProcess.install();
     if(!res) {
       throw Exception('Error while installing Docker. Please check your installation method.');
     }
@@ -44,7 +45,7 @@ Future<void> checkInstalled() async {
   var tokeiProcess = GetIt.I<TokeiProcess>();
   var tokeiRes = await tokeiProcess.isInstalled();
   if(!tokeiRes) {
-    var res = await tokeiProcess.installTokei();
+    var res = await tokeiProcess.install();
     if(!res) {
       throw Exception('Error while installing Tokei. Please check your installation method.');
     }
@@ -54,10 +55,10 @@ Future<void> checkInstalled() async {
 
 
 void registerDependencies() {
-  GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
+ GetIt.I.registerSingleton<Log>(ConsoleLog());  GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
   GetIt.I.registerFactory(() => DockerImageUsecase(GetIt.I<DockerImageInterface>()));
-  GetIt.I.registerSingleton<DockerProcess>(DockerProcess());
-  GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess());
+  GetIt.I.registerSingleton<DockerProcess>(DockerProcess(GetIt.I<Log>()));
+  GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess(GetIt.I<Log>()));
   GetIt.I.registerSingleton<DbManager<Languages>>(LanguagesDbManager());
   GetIt.I.registerSingleton<DbManager<Templates>>(TemplatesDbManager());
   GetIt.I.registerSingleton<TemplatesDbManager>(TemplatesDbManager());
