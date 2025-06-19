@@ -1,10 +1,7 @@
 import 'dart:io';
 
-import 'package:dokdok/services/log/console.dart';
 import 'package:dokdok/services/log/interface.dart';
-import 'package:logger/logger.dart';
 import 'package:process_run/cmd_run.dart';
-
 abstract class CommandRunner {
   Future<ProcessResult> runCommand(String command, List<String> arguments);
 }

@@ -55,9 +55,7 @@ Future<void> checkInstalled() async {
 
 
 void registerDependencies() {
- GetIt.I.registerSingleton<Log>(ConsoleLog());
-  GetIt.I.registerSingleton<ConsoleLog>(ConsoleLog());
-  GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
+ GetIt.I.registerSingleton<Log>(ConsoleLog());  GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
   GetIt.I.registerFactory(() => DockerImageUsecase(GetIt.I<DockerImageInterface>()));
   GetIt.I.registerSingleton<DockerProcess>(DockerProcess(GetIt.I<Log>()));
   GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess(GetIt.I<Log>()));
