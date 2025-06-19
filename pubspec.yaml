@@ -41,6 +41,7 @@ dependencies:
   process_run: ^1.2.4
   sqflite: ^2.4.2
   sqflite_common_ffi: ^2.3.6
+  logger: ^2.5.0
 
 dev_dependencies:
   flutter_test:
