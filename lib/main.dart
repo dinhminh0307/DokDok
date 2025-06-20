@@ -3,6 +3,7 @@ import 'package:dokdok/services/db/languages.dart';
 import 'package:dokdok/services/db/templates.dart';
 import 'package:dokdok/services/log/console.dart';
 import 'package:dokdok/services/log/interface.dart';
+import 'package:dokdok/services/process_run/create_file.dart';
 import 'package:dokdok/services/process_run/docker_process.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/shared/constant/nav_items.dart';
@@ -62,6 +63,7 @@ void registerDependencies() {
   GetIt.I.registerSingleton<DbManager<Languages>>(LanguagesDbManager());
   GetIt.I.registerSingleton<DbManager<Templates>>(TemplatesDbManager());
   GetIt.I.registerSingleton<TemplatesDbManager>(TemplatesDbManager());
+  GetIt.I.registerSingleton<CreateFileProcess>(CreateFileProcess(GetIt.I<Log>()));
 }
 
 // Define your routes

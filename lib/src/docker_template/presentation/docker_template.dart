@@ -54,6 +54,65 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
     }
   }
 
+  Future<void> _createDockerFile() async {
+    final code = _codeController.text;
+  final language = _selectedLanguage;
+  
+  if (widget.folder == null || widget.folder!.isEmpty) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => ContentDialog(
+        title: const Text('Error'),
+        content: const Text('No folder selected. Please select a folder first.'),
+        actions: [
+          Button(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(dialogContext),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
+  
+  try {
+    // Create the Dockerfile in the selected folder
+    await widget._dockerTemplateUseCase.createDockerfile(
+      widget.folder!,
+      code,
+      fileName: "Dockerfile"
+    );
+    
+    showDialog(
+      context: context,
+      builder: (dialogContext) => ContentDialog(
+        title: const Text('Success'),
+        content: const Text('Dockerfile has been created successfully.'),
+        actions: [
+          Button(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(dialogContext),
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    showDialog(
+      context: context,
+      builder: (_) => ContentDialog(
+        title: const Text('Error'),
+        content: Text('Failed to create Dockerfile: ${e.toString()}'),
+        actions: [
+          Button(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+  }
+
   @override
   void dispose() {
     _codeController.dispose();
@@ -145,24 +204,46 @@ void _initAsync() async {
                 padding: ButtonState.all(const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
                 elevation: ButtonState.all(4.0),
               ),
-              onPressed: () {
-                // You can handle the code submission here
+              onPressed: () async{
                 final code = _codeController.text;
                 final language = _selectedLanguage;
-                // TODO: Implement your logic for creating a Docker image with [code] and [language]
-                showDialog(
-                  context: context,
-                  builder: (_) => ContentDialog(
-                    title: const Text('Docker Image'),
-                    content: const Text('Docker image creation logic goes here.'),
-                    actions: [
-                      Button(
-                        child: const Text('OK'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                );
+                
+                if (widget.folder == null || widget.folder!.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => ContentDialog(
+                      title: const Text('Error'),
+                      content: const Text('No folder selected. Please select a folder first.'),
+                      actions: [
+                        Button(
+                          child: const Text('OK'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
+                
+                try {
+                  // Create the Dockerfile in the selected folder
+                  await _createDockerFile(); // Call your method here
+                  
+                } catch (e) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => ContentDialog(
+                      title: const Text('Error'),
+                      content: Text('Failed to create Dockerfile: ${e.toString()}'),
+                      actions: [
+                        Button(
+                          child: const Text('OK'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
             ),
           ),

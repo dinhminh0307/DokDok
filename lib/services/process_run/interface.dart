@@ -22,3 +22,4 @@ abstract class InstallableProcess {
   Future<bool> isInstalled();
   Future<bool> install();
 }
+

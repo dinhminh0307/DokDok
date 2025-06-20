@@ -1,5 +1,6 @@
 import 'package:dokdok/services/db/db_manager.dart';
 import 'package:dokdok/services/db/templates.dart';
+import 'package:dokdok/services/process_run/create_file.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';
 import 'package:dokdok/src/docker_template/data/templates.dart';
@@ -29,5 +30,16 @@ class DockerTemplateUseCase {
       throw Exception('Template not found for program ID: $language');
     }
     return template.code ?? 'No template available for this language.';
+  }
+
+  Future<void> createDockerfile(String folderPath, String content, {String fileName = "Dockerfile"}) async {
+    final createFileProcess = GetIt.I<CreateFileProcess>();
+    var res = await createFileProcess.createFile(folderPath, fileName, content);
+
+    if(res.existsSync()) {
+      print('Dockerfile created successfully at: ${res.path}');
+    } else {
+      print('Failed to create Dockerfile.');
+    }
   }
 }
