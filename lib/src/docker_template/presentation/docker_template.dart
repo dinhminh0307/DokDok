@@ -1,12 +1,28 @@
+import 'package:dokdok/services/db/db_manager.dart';
+import 'package:dokdok/services/db/templates.dart';
+import 'package:dokdok/services/log/console.dart';
+import 'package:dokdok/services/log/interface.dart';
+import 'package:dokdok/services/process_run/create_file.dart';
+import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';
 import 'package:dokdok/src/docker_template/domain/docker_template_usecase.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide ButtonStyle, showDialog;
+import 'package:get_it/get_it.dart';
 
 class DockerTemplateApp extends StatefulWidget {
   final String? folder;
-  final DockerTemplateUseCase _dockerTemplateUseCase = DockerTemplateUseCase();
-  DockerTemplateApp({super.key, this.folder});
+  late final DockerTemplateUseCase _dockerTemplateUseCase;
+
+  DockerTemplateApp({super.key, this.folder}) {
+  _dockerTemplateUseCase = DockerTemplateUseCase(
+    log: GetIt.I<Log>(),
+    tokeiProcess: GetIt.I<TokeiProcess>(),
+    languagesDb: GetIt.I<DbManager<Languages>>(),
+    templatesDb: GetIt.I<TemplatesDbManager>(),
+    createFileProcess: GetIt.I<CreateFileProcess>(),
+  );
+}
 
   @override
   State<DockerTemplateApp> createState() => _DockerTemplateAppState();
@@ -91,7 +107,10 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
         actions: [
           Button(
             child: const Text('OK'),
-            onPressed: () => Navigator.pop(dialogContext),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.of(context).pushReplacementNamed('/docker-images');
+            },
           ),
         ],
       ),

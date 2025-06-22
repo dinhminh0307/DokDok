@@ -1,5 +1,7 @@
 import 'package:dokdok/services/db/db_manager.dart';
 import 'package:dokdok/services/db/templates.dart';
+import 'package:dokdok/services/log/console.dart';
+import 'package:dokdok/services/log/interface.dart';
 import 'package:dokdok/services/process_run/create_file.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';
@@ -7,9 +9,23 @@ import 'package:dokdok/src/docker_template/data/templates.dart';
 import 'package:get_it/get_it.dart';
 
 class DockerTemplateUseCase {
-  final TokeiProcess _tokeiProcess = GetIt.I<TokeiProcess>();
+  final ConsoleLog _consoleLog;
+  final TokeiProcess _tokeiProcess;
+  final TemplatesDbManager _templatesDb;
+  final CreateFileProcess _createFileProcess;
+  late final DbManager<Languages> db;
 
-  DockerTemplateUseCase();
+  DockerTemplateUseCase({
+    required TokeiProcess tokeiProcess,
+    required Log log,
+    required DbManager<Languages> languagesDb,
+    required TemplatesDbManager templatesDb,
+    required CreateFileProcess createFileProcess,
+  }) : _consoleLog = log as ConsoleLog,
+       _tokeiProcess = tokeiProcess,
+       _templatesDb = templatesDb,
+       db = languagesDb,
+       _createFileProcess = createFileProcess;
 
   Future<String> getProgrammingLanguages(String folderPath) async {
    final tokeiProcess = GetIt.I<TokeiProcess>();
@@ -37,9 +53,9 @@ class DockerTemplateUseCase {
     var res = await createFileProcess.createFile(folderPath, fileName, content: content);
 
     if(res.existsSync()) {
-      print('Dockerfile created successfully at: ${res.path}');
+      _consoleLog.info('Dockerfile created successfully at: ${res.path}');
     } else {
-      print('Failed to create Dockerfile.');
+      _consoleLog.error('Failed to create Dockerfile.');
     }
   }
 }
