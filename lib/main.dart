@@ -4,7 +4,7 @@ import 'package:dokdok/services/db/templates.dart';
 import 'package:dokdok/services/log/console.dart';
 import 'package:dokdok/services/log/interface.dart';
 import 'package:dokdok/services/process_run/create_file.dart';
-import 'package:dokdok/services/process_run/docker_process.dart';
+import 'package:dokdok/services/process_run/docker/docker_process.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/shared/constant/nav_items.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';

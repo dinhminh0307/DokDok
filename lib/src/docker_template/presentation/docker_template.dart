@@ -6,6 +6,7 @@ import 'package:dokdok/services/process_run/create_file.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';
 import 'package:dokdok/src/docker_template/domain/docker_template_usecase.dart';
+import 'package:dokdok/src/docker_template/presentation/modals/docker_image_information.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide ButtonStyle, showDialog;
 import 'package:get_it/get_it.dart';
@@ -70,66 +71,83 @@ class _DockerTemplateAppState extends State<DockerTemplateApp> {
     }
   }
 
-  Future<void> _createDockerFile() async {
+  Future<void> _createDockerFile(DockerImageInfo? imageInfo) async {
     final code = _codeController.text;
-  final language = _selectedLanguage;
-  
-  if (widget.folder == null || widget.folder!.isEmpty) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => ContentDialog(
-        title: const Text('Error'),
-        content: const Text('No folder selected. Please select a folder first.'),
-        actions: [
-          Button(
-            child: const Text('OK'),
-            onPressed: () => Navigator.pop(dialogContext),
-          ),
-        ],
-      ),
-    );
-    return;
-  }
-  
-  try {
-    // Create the Dockerfile in the selected folder
-    await widget._dockerTemplateUseCase.createDockerfile(
-      widget.folder!,
-      code,
-      fileName: "Dockerfile"
-    );
     
-    showDialog(
-      context: context,
-      builder: (dialogContext) => ContentDialog(
-        title: const Text('Success'),
-        content: const Text('Dockerfile has been created successfully.'),
-        actions: [
-          Button(
-            child: const Text('OK'),
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              Navigator.of(context).pushReplacementNamed('/docker-images');
-            },
-          ),
-        ],
-      ),
-    );
-  } catch (e) {
-    showDialog(
-      context: context,
-      builder: (_) => ContentDialog(
-        title: const Text('Error'),
-        content: Text('Failed to create Dockerfile: ${e.toString()}'),
-        actions: [
-          Button(
-            child: const Text('OK'),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
-  }
+    if (widget.folder == null || widget.folder!.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => ContentDialog(
+          title: const Text('Error'),
+          content: const Text('No folder selected. Please select a folder first.'),
+          actions: [
+            Button(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(dialogContext),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    
+    try {
+      // Create the Dockerfile in the selected folder
+      await widget._dockerTemplateUseCase.createDockerfile(
+        widget.folder!,
+        code,
+        fileName: "Dockerfile"
+      );
+      
+      // Show success dialog with appropriate message
+      String successMessage = 'Dockerfile has been created successfully.';
+      
+      // Add build message if applicable
+      if (imageInfo?.buildAfterCreation == true) {
+        successMessage += '\n\nBuilding Docker image: ${imageInfo!.imageName}:${imageInfo.imageTag}';
+        // add code to build the Docker image
+        
+        // Add container run message if applicable
+        if (imageInfo.runContainer) {
+          successMessage += '\n\nRunning container from the image';
+          
+          if (imageInfo.mapPort) {
+            successMessage += '\nMapping port ${imageInfo.hostPort} → ${imageInfo.containerPort}';
+          }
+        }
+      }
+      
+      showDialog(
+        context: context,
+        builder: (dialogContext) => ContentDialog(
+          title: const Text('Success'),
+          content: Text(successMessage),
+          actions: [
+            Button(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.of(context).pushReplacementNamed('/docker-images');
+              },
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (_) => ContentDialog(
+          title: const Text('Error'),
+          content: Text('Failed to create Dockerfile: ${e.toString()}'),
+          actions: [
+            Button(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -223,10 +241,7 @@ void _initAsync() async {
                 padding: ButtonState.all(const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
                 elevation: ButtonState.all(4.0),
               ),
-              onPressed: () async{
-                final code = _codeController.text;
-                final language = _selectedLanguage;
-                
+              onPressed: () async {
                 if (widget.folder == null || widget.folder!.isEmpty) {
                   showDialog(
                     context: context,
@@ -244,24 +259,32 @@ void _initAsync() async {
                   return;
                 }
                 
-                try {
-                  // Create the Dockerfile in the selected folder
-                  await _createDockerFile(); // Call your method here
-                  
-                } catch (e) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => ContentDialog(
-                      title: const Text('Error'),
-                      content: Text('Failed to create Dockerfile: ${e.toString()}'),
-                      actions: [
-                        Button(
-                          child: const Text('OK'),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  );
+                // Show Docker image information modal
+                final result = await showDialog<DockerImageInfo>(
+                  context: context,
+                  builder: (context) => const DockerImageInformationDialog(),
+                );
+                
+                // If user provided information, create the Dockerfile
+                if (result != null) {
+                  try {
+                    await _createDockerFile(result);
+                  } catch (e) {
+                    if (!mounted) return;
+                    showDialog(
+                      context: context,
+                      builder: (_) => ContentDialog(
+                        title: const Text('Error'),
+                        content: Text('Failed to create Dockerfile: ${e.toString()}'),
+                        actions: [
+                          Button(
+                            child: const Text('OK'),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                 }
               },
             ),
