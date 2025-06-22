@@ -34,7 +34,7 @@ class DockerTemplateUseCase {
 
   Future<void> createDockerfile(String folderPath, String content, {String fileName = "Dockerfile"}) async {
     final createFileProcess = GetIt.I<CreateFileProcess>();
-    var res = await createFileProcess.createFile(folderPath, fileName, content);
+    var res = await createFileProcess.createFile(folderPath, fileName, content: content);
 
     if(res.existsSync()) {
       print('Dockerfile created successfully at: ${res.path}');

@@ -56,14 +56,22 @@ Future<void> checkInstalled() async {
 
 
 void registerDependencies() {
- GetIt.I.registerSingleton<Log>(ConsoleLog());  GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
+  // Register logging
+  GetIt.I.registerSingleton<Log>(ConsoleLog());
+  
+  // Register repositories and usecases
+  GetIt.I.registerSingleton<DockerImageInterface>(DockerImageInterfaceImpl());
   GetIt.I.registerFactory(() => DockerImageUsecase(GetIt.I<DockerImageInterface>()));
-  GetIt.I.registerSingleton<DockerProcess>(DockerProcess(GetIt.I<Log>()));
-  GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess(GetIt.I<Log>()));
+  
+  // Register process handlers
+  GetIt.I.registerSingleton<DockerProcess>(DockerProcess(log: GetIt.I<Log>()));
+  GetIt.I.registerSingleton<TokeiProcess>(TokeiProcess(log: GetIt.I<Log>()));
+  GetIt.I.registerSingleton<CreateFileProcess>(CreateFileProcess(log: GetIt.I<Log>()));
+  
+  // Register database managers
   GetIt.I.registerSingleton<DbManager<Languages>>(LanguagesDbManager());
   GetIt.I.registerSingleton<DbManager<Templates>>(TemplatesDbManager());
   GetIt.I.registerSingleton<TemplatesDbManager>(TemplatesDbManager());
-  GetIt.I.registerSingleton<CreateFileProcess>(CreateFileProcess(GetIt.I<Log>()));
 }
 
 // Define your routes
