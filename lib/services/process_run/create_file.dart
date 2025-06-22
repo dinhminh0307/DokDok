@@ -1,24 +1,10 @@
 import 'dart:io';
 
 import 'package:dokdok/services/log/interface.dart';
+import 'package:dokdok/services/process_run/interfaces/file_creator.dart';
 import 'package:dokdok/utils/platform_utils.dart';
 import 'package:dokdok/services/process_run/common/process_logger.dart';
 import 'package:path/path.dart' as path;
-
-/// Interface for file creation operations
-abstract class FileCreator {
-  /// Creates a file at the specified path with optional content
-  Future<File> createFile(String folderPath, String fileName, {String? content});
-  
-  /// Creates a folder at the specified path
-  Future<Directory> createFolder(String folderPath);
-  
-  /// Checks if a file exists at the specified path
-  Future<bool> fileExists(String filePath);
-  
-  /// Checks if a folder exists at the specified path
-  Future<bool> folderExists(String folderPath);
-}
 
 /// Implementation of FileCreator for creating files on the filesystem
 class CreateFileProcess implements FileCreator {
