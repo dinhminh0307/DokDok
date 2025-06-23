@@ -3,6 +3,7 @@ import 'package:dokdok/services/db/templates.dart';
 import 'package:dokdok/services/log/console.dart';
 import 'package:dokdok/services/log/interface.dart';
 import 'package:dokdok/services/process_run/create_file.dart';
+import 'package:dokdok/services/process_run/docker/docker_image_command.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';
 import 'package:dokdok/src/docker_template/domain/docker_template_usecase.dart';
@@ -22,6 +23,7 @@ class DockerTemplateApp extends StatefulWidget {
     languagesDb: GetIt.I<DbManager<Languages>>(),
     templatesDb: GetIt.I<TemplatesDbManager>(),
     createFileProcess: GetIt.I<CreateFileProcess>(),
+    dockerImageCommand: GetIt.I<DockerImageCommand>(),
   );
 }
 
