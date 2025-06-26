@@ -2,6 +2,7 @@ import 'package:dokdok/services/log/interface.dart';
 import 'package:dokdok/services/process_run/common/base_installable_process_new.dart';
 import 'package:dokdok/utils/platform_utils.dart';
 import 'package:dokdok/services/process_run/interfaces/command_interfaces.dart';
+import 'package:process_run/stdio.dart';
 
 /// Docker process handler that provides installation and command execution capabilities
 class DockerProcess extends BaseInstallableProcess {
@@ -51,19 +52,18 @@ class DockerProcess extends BaseInstallableProcess {
   }
   
   /// Runs a Docker command
-  Future<bool> runDockerCommand(List<String> arguments) async {
+  Future<ProcessResult> runDockerCommand(List<String> arguments) async {
     try {
       var result = await runCommand('docker', arguments);
       if (result.exitCode == 0) {
-        logger.info('Docker command executed successfully: ${result.stdout}');
-        return true;
+        return result;
       } else {
         logger.error('Docker command failed: ${result.stderr}');
-        return false;
+        throw Exception('Docker command failed with exit code ${result.exitCode}');
       }
     } catch (e) {
       logger.error('Error executing Docker command', e);
-      return false;
+      throw Exception('Error executing Docker command');
     }
   }
   

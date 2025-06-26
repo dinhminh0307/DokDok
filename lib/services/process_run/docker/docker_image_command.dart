@@ -22,10 +22,10 @@ class DockerImageCommand extends DockerProcess {
     
     final result = await runDockerCommand(args);
     
-    if (result) {
+    if (result.exitCode == 0) {
       logger.info('Docker image $imageName built successfully.');
     } else {
-      logger.error('Failed to build Docker image $imageName.');
+      logger.error('Failed to build Docker image $imageName: ${result.stderr}');
     }
   }
 }

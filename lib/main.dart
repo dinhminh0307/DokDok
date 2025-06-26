@@ -4,10 +4,13 @@ import 'package:dokdok/services/db/templates.dart';
 import 'package:dokdok/services/log/console.dart';
 import 'package:dokdok/services/log/interface.dart';
 import 'package:dokdok/services/process_run/create_file.dart';
+import 'package:dokdok/services/process_run/docker/docker_container_command.dart';
 import 'package:dokdok/services/process_run/docker/docker_image_command.dart';
 import 'package:dokdok/services/process_run/docker/docker_process.dart';
 import 'package:dokdok/services/process_run/tokei_process.dart';
 import 'package:dokdok/shared/constant/nav_items.dart';
+import 'package:dokdok/src/docker_containers/domain/docker_containers_service.dart';
+import 'package:dokdok/src/docker_containers/presentation/docker_containers.dart';
 import 'package:dokdok/src/docker_template/data/languages.dart';
 import 'package:dokdok/src/docker_image/data/repos/docker_image_repos_impl.dart';
 import 'package:dokdok/src/docker_image/domain/repos/docker_image_repos.dart';
@@ -75,6 +78,11 @@ void registerDependencies() {
   GetIt.I.registerSingleton<TemplatesDbManager>(TemplatesDbManager());
 
   GetIt.I.registerSingleton<DockerImageCommand>(DockerImageCommand(log: GetIt.I<Log>()));
+
+  //register Docker Containers Service
+  GetIt.I.registerSingleton<DockerContainersService>(
+    DockerContainersService(dockerContainerCommand: DockerContainerCommand(log: GetIt.I<Log>())),
+  );
 }
 
 // Define your routes
@@ -88,7 +96,6 @@ final GoRouter _router = GoRouter(
           path: '/docker-images',
           builder: (context, state) => DockerImageApp(GetIt.I<DockerImageUsecase>()),
         ),
-        // Add more routes here, e.g.:
         GoRoute(
           path: '/templates',
           builder: (context, state) {
@@ -96,6 +103,11 @@ final GoRouter _router = GoRouter(
           return DockerTemplateApp(folder: folder);
         },
         ),
+
+        GoRoute(
+          path: '/docker-containers',
+          builder: (context, state) => DockerContainers(GetIt.I<DockerContainersService>()),
+        )
       ],
     ),
   ],
@@ -128,14 +140,13 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<String> routePaths = [
     '/docker-images',
-    // '/tasks',
+    '/docker-containers',
   ];
 
   void _onSidebarItemSelected(int index) {
     setState(() {
       selectedIndex = index;
     });
-    print('Selected route: ${navItems[index].route}');
     GoRouter.of(context).go(navItems[index].route);
   }
 

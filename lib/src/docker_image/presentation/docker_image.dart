@@ -30,19 +30,87 @@ class _DockerImageAppState extends State<DockerImageApp> {
     super.dispose();
   }
 
+  void _pickFolder() async {
+    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    if (selectedDirectory != null) {
+      setState(() {
+        _selectedFolder = selectedDirectory;
+      });
+    }
+  }
+
+  Widget _buildTableSection() {
+    final columns = ['name', 'tag', 'size', 'created'];
+    
+    return FutureBuilder<List<DockerImageModel>>(
+      future: widget._dockerImageUsecase.getDockerImages(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            width: 700,
+            height: 300,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return SizedBox(
+            width: 700,
+            height: 300,
+            child: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const SizedBox(
+            width: 700,
+            height: 300,
+            child: Center(
+              child: Text(
+                'No Docker images found.',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            ),
+          );
+        } else {
+          final data = snapshot.data!
+              .map((img) => {
+                    'name': img.name,
+                    'tag': img.tag,
+                    'size': img.size,
+                    'created': img.created,
+                  })
+              .toList();
+
+          return SizedBox(
+            width: 700,
+            height: 300,
+            child: Scrollbar(
+              controller: _horizontalController,
+              thumbVisibility: true,
+              notificationPredicate: (notification) => notification.depth == 0,
+              child: SingleChildScrollView(
+                controller: _horizontalController,
+                scrollDirection: Axis.horizontal,
+                child: Scrollbar(
+                  controller: _verticalController,
+                  thumbVisibility: true,
+                  notificationPredicate: (notification) => notification.depth == 1,
+                  child: SingleChildScrollView(
+                    controller: _verticalController,
+                    scrollDirection: Axis.vertical,
+                    child: TableBuilder(
+                      columns: columns,
+                      data: data,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final columns = ['name', 'tag', 'size', 'created'];
-
-    void _pickFolder() async {
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-      if (selectedDirectory != null) {
-        setState(() {
-          _selectedFolder = selectedDirectory;
-        });
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Docker Images Page'),
@@ -54,121 +122,75 @@ class _DockerImageAppState extends State<DockerImageApp> {
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 32.0),
-              child: FutureBuilder<List<DockerImageModel>>(
-                future: widget._dockerImageUsecase.getDockerImages(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No Docker images found.'));
-                  } else {
-                    final data = snapshot.data!
-                        .map((img) => {
-                              'name': img.name,
-                              'tag': img.tag,
-                              'size': img.size,
-                              'created': img.created,
-                            })
-                        .toList();
-
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 700,
-                          height: 300,
-                          child: Scrollbar(
-                            controller: _horizontalController,
-                            thumbVisibility: true,
-                            notificationPredicate: (notification) => notification.depth == 0,
-                            child: SingleChildScrollView(
-                              controller: _horizontalController,
-                              scrollDirection: Axis.horizontal,
-                              child: Scrollbar(
-                                controller: _verticalController,
-                                thumbVisibility: true,
-                                notificationPredicate: (notification) => notification.depth == 1,
-                                child: SingleChildScrollView(
-                                  controller: _verticalController,
-                                  scrollDirection: Axis.vertical,
-                                  child: TableBuilder(
-                                    columns: columns,
-                                    data: data,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: _pickFolder,
-                          label: const Text('Add Docker Project folder'),
-                          icon: const Icon(Icons.add),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _selectedFolder == null
-                              ? 'Manage your Project folder here to be generated into docker file. You can add, remove, and view details of your Docker images.'
-                              : 'Selected folder: $_selectedFolder',
-                          style: const TextStyle(fontSize: 16, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
-                         Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Radio<int>(
-                          value: 0,
-                          groupValue: _selectedOption,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOption = value!;
-                            });
-                          },
-                        ),
-                        const Text('Create with template'),
-                        const SizedBox(width: 16),
-                        Radio<int>(
-                          value: 1,
-                          groupValue: _selectedOption,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOption = value!;
-                            });
-                          },
-                        ),
-                        const Text('Create with AI'),
-                        const SizedBox(width: 16),
-                        Radio<int>(
-                          value: 2,
-                          groupValue: _selectedOption,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOption = value!;
-                            });
-                          },
-                        ),
-                        const Text('Create with Drag and Drop'),
-                        const SizedBox(width: 16),
-                        Radio<int>(
-                          value: 3,
-                          groupValue: _selectedOption,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOption = value!;
-                            });
-                          },
-                        ),
-                        const Text('View Details'),
-                      ],
-                    ),
-                      ],
-                    );
-                  }
-                },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Table section that changes based on data availability
+                  _buildTableSection(),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: _pickFolder,
+                    label: const Text('Add Docker Project folder'),
+                    icon: const Icon(Icons.add),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _selectedFolder == null
+                        ? 'Manage your Project folder here to be generated into docker file. You can add, remove, and view details of your Docker images.'
+                        : 'Selected folder: $_selectedFolder',
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Radio<int>(
+                        value: 0,
+                        groupValue: _selectedOption,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedOption = value!;
+                          });
+                        },
+                      ),
+                      const Text('Create with template'),
+                      const SizedBox(width: 16),
+                      Radio<int>(
+                        value: 1,
+                        groupValue: _selectedOption,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedOption = value!;
+                          });
+                        },
+                      ),
+                      const Text('Create with AI'),
+                      const SizedBox(width: 16),
+                      Radio<int>(
+                        value: 2,
+                        groupValue: _selectedOption,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedOption = value!;
+                          });
+                        },
+                      ),
+                      const Text('Create with Drag and Drop'),
+                      const SizedBox(width: 16),
+                      Radio<int>(
+                        value: 3,
+                        groupValue: _selectedOption,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedOption = value!;
+                          });
+                        },
+                      ),
+                      const Text('View Details'),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

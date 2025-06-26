@@ -11,8 +11,6 @@ class DockerImageModel {
     required this.created,
   });
 
-  /// Parse a line from `docker images --format "{{.Repository}} {{.Tag}} {{.Size}} {{.CreatedSince}}"`
-  /// Example line: "nginx latest 133MB 2 days ago"
   static DockerImageModel? fromCliLine(String line) {
     // Split by space, but keep the last two fields (size and created) together
     final parts = line.trim().split(RegExp(r'\s+'));
