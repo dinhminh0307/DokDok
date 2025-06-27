@@ -56,7 +56,7 @@ class _DockerContainersState extends State<DockerContainers> {
             height: 300,
             child: Center(
               child: Text(
-                'No Docker images found.',
+                'No Docker containers found.',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ),
@@ -73,7 +73,7 @@ class _DockerContainersState extends State<DockerContainers> {
                   })
               .toList();
 
-          return SizedBox(
+          return Container(
             width: 700,
             height: 300,
             child: Scrollbar(
@@ -111,11 +111,15 @@ class _DockerContainersState extends State<DockerContainers> {
         title: const Text('Docker Containers Page'),
         centerTitle: true,
       ),
-      body: Stack(
-        children: [
-          _buildTableSection(),
-        ],
+      body: Center(
+        child: Column(
+          children: [
+            _buildTableSection(),
+            SizedBox(height: 20), // Add some spacing
+            Text("hello"),
+          ],
       ),
+      )
     );
   }
 }
